@@ -4,7 +4,7 @@ Projeto de um simples chatbot usando API da OpenAI implementada com LangChain e 
 Por enquanto, requer Streamlit local para rodar: "streamlit run app.py" no terminal
 Precisa de Chave de API da OpenAI, ou via variavel de ambiente (OPENAI_API_KEY) ou colocada manualmente.
 
-Features implementadas por enquanto:
+# Features implementadas por enquanto:
 Nivel de Entendimento:
 - Nenhum: IA vai tratar como se o usuário não tivesse nenhum conhecimento prévio em qualquer assunto técnico
 - Basico: IA vai partir do pressuposto que o usuário tem intendimento prévio do assunto, em nivel casual
