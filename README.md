@@ -23,12 +23,12 @@ IA Roleplay:
 Agentes:
 
   Utiliza sistema de Agentes capaz de tomar decisões e selecionar entre sua lista de possíveis ações, assim dividindo o problema em partes aceitáveis
-  Ferramentas:
+  Ferramentas
+  
+- Matematica: Capaz de solucionar operações algébricas e fazer calculos caso for necessário
+    
+- Wikipedia: Capaz de pesquisar sobre pessoas, coisas, lugares na Wikipedia
+    
+- Pesquisa: Capaz de pesquisar na internet sobre quaisquer tópicos que julgar necessário (usando DuckDuckGO)
 
-    - Matematica: Capaz de solucionar operações algébricas e fazer calculos caso for necessário
-
-    - Wikipedia: Capaz de pesquisar sobre pessoas, coisas, lugares na Wikipedia
-
-    - Pesquisa: Capaz de pesquisar na internet sobre quaisquer tópicos que julgar necessário (usando DuckDuckGO)
-
-    - Random: Capaz de gerar números aleatórios
+- Random: Capaz de gerar números aleatórios
