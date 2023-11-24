@@ -6,85 +6,109 @@ from langchain.utilities import WikipediaAPIWrapper
 from langchain.chains import LLMMathChain
 from langchain.agents import Tool
 from langchain.tools import StructuredTool, DuckDuckGoSearchRun
-from langchain.llms import OpenAI
 import random
 
-def calculator(input=""):
-    """
-    Function for tool mathTool\n
-    Creates an MathChainLLM with the key from stApp.py
-    """
-    from stApp import getKey
-    key = getKey()
-    try:
-        llm = OpenAI(temperature=0, openai_api_key=key)
-        mathChain = LLMMathChain.from_llm(llm, verbose=True)
-    except:
-        return "Error occured, couldn't connect to API, tell this to the user"
-    return mathChain.run(input)
 
-mathTool = Tool(
-    name="Math",
-    func=calculator,
-    description="Useful for doing complex math problems, be specific with your input"
-)
-
-def search(input=""):
+class BasicAgent:
     """
-        Function for tool searchTool\n
-        Uses DuckDuckGo API to search the internet
+            Agent class used to manage an agent and its tools\n
+            Useful for centralization and so that it's methods can have information like its llm
     """
-    return DuckDuckGoSearchRun()
 
-searchTool = Tool(
-    name="Search",
-    func=search,
-    description="Useful when you need to search the internet for information you can't get alone, be specific with your input"
-)
+    def __init__(self, llm):
+        """
+            Initialized agent
+            :param llm: Large Language Model this agent and its tools will use
+        """
+        self.llm = llm
+        self.agent = initialize_agent(
+            agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
+            tools=self.getTools(),
+            llm=self.llm,
+            verbose=True,
+            max_iterations=3
+        )
 
-def wikipedia(input=""):
-    """
-        Function for tool wikiTool\n
-        Uses Wikipedia API
-    """
-    return WikipediaAPIWrapper()
 
-wikiTool = Tool(
-    name="Wikipedia",
-    func=wikipedia,
-    description="Useful to look up specifc information about a person, country or topic on wikipedia"
-)
+    def run(self, prompt):
+        """Runs the agent based on input given
+        :param prompt: Input prompt for agent to observe
+        :return: Output text of agents response"""
+        result = self.agent(prompt)
+        return result["output"]
 
-def generateRandom(min:int, max:int):
-    """
-        Function for tool randomTool\n
-        Generates a random number between the two given ints
-    """
-    result = random.randint(min, max)
+    def getTools(self):
+        """Returns the list of tools of the specific agent"""
+        llm = self.llm  # Sets up accessible llm for tools that need it
+        tools = []      # Creates empty list
 
-    return result
+        def search(input=""):
+            """
+                Function for tool searchTool\n
+                Uses DuckDuckGo API to search the internet
+            """
+            return DuckDuckGoSearchRun()
 
-randomTool = StructuredTool.from_function( #Structured because needs multiple inputs
-    name="Random",
-    func=generateRandom,
-    description="Generates a random number between two given ints"
-)
+        tools.append(
+            Tool(
+                name="Search",
+                func=search,
+                description= "Useful when you need to search the internet for information you can't get alone, be specific with your input"
+            )
+        )
 
-tools = [searchTool, randomTool, wikiTool, mathTool]
-def runAgent(llm, input):
+        def calculator(input=""):
+            """
+            Function for tool mathTool\n
+            Uses self.llm to generate a LLMMathChain
+            """
+            try:
+                mathChain = LLMMathChain.from_llm(llm, verbose=True)
+                mathChain.run(input)
+            except ValueError:
+                return "Error occured, not all the values needed are known. Maybe search before trying Math?"
+            except:
+                return "Unexpected error occured, tell this to the user"
 
-    """
-        Creates and runs an Agent
-        :param llm: The Large Language Model that will power the agent
-        :param input: Initial input of what to do
-        :return: Output text of what the agents response
-    """
-    myAgent = initialize_agent(
-        agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-        tools=tools,
-        llm = llm,
-        verbose=True,
-        max_iterations=3
-    )
-    result = myAgent(input)
-    return result["output"]
+            return
+
+        tools.append(
+            Tool(
+                name="Math",
+                func=calculator,
+                description="Useful for doing complex math problems. Only use it when you already know all the numbers needed in the equation"
+            )
+        )
+
+        def wikipedia(input=""):
+            """
+                Function for tool wikiTool\n
+                Uses Wikipedia API
+            """
+            return WikipediaAPIWrapper()
+
+        tools.append(
+            Tool(
+                name="Wikipedia",
+                func=wikipedia,
+                description="Useful to look up specifc information about a person, country or topic on wikipedia"
+            )
+        )
+
+        def generateRandom(min: int, max: int):
+            """
+                Function for tool randomTool\n
+                Generates a random number between the two given ints
+            """
+            result = random.randint(min, max)
+            return result
+
+        tools.append(
+            StructuredTool.from_function(  # Structured because needs multiple inputs
+                name="Random",
+                func=generateRandom,
+                description="Generates a random number between two given ints"
+            )
+        )
+
+        return tools

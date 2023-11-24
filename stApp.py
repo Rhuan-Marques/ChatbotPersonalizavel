@@ -99,7 +99,7 @@ if input := st.chat_input():
     # Connection errors or Key errors will be passed to user as messages on the chat
     if st.session_state.ai == None:
         try:
-            st.session_state.ai = AI(name=name, role=role, user_name=username, knowledge=knowLvl, key=key, agentToggle=agentToggle)
+            st.session_state.ai = AI(name=name, role=role, user_name=username, knowledge=knowLvl, key=key, agent_toggle=agentToggle)
         except KeyNotFound:
             response = "Chave nao reconhecida na barra lateral nem nas variáveis de ambiente"
         except APIConectionError:
@@ -117,7 +117,6 @@ if input := st.chat_input():
 def getKey():
         """
         Gets key from textbox
-        :param key: An API Key, possibly empty
         :return: The key found, None if it doesn't find any keys
         """
         return key
