@@ -1,5 +1,5 @@
 # ChatbotPersonalizavel
-Projeto de um simples chatbot usando API da OpenAI implementada com LangChain e Streamlit.
+Projeto de um chatbot usando API da OpenAI implementada com LangChain e Streamlit.
 ## Como utilizar:
   Tenha Python, Langchain e Streamlit instalados localmente.
   
@@ -9,15 +9,15 @@ Projeto de um simples chatbot usando API da OpenAI implementada com LangChain e 
   
   Precisa de Chave de API da OpenAI, colocada manualmente na barra lateral do programa, ou via variavel de ambiente (OPENAI_API_KEY).
 
-# Features implementadas por enquanto:
+# Features implementadas:
 
 ## Nomes constantes:
-  Caso preenchido os campos "Nome da IA" e "Nome do usuário", estes valores serão conhecimento constante da LLM para caso necessário.
+  Caso preenchido os campos "Nome da IA" e "Nome do usuário", estes valores serão conhecimento constante da IA para caso necessário.
   
-## Escolher nivel de Entendimento do usuário:
+## Escolher nível de Entendimento do usuário:
 - Nenhum: IA vai tratar como se o usuário não tivesse nenhum conhecimento prévio em qualquer assunto técnico
 
-- Basico: IA vai partir do pressuposto que o usuário tem intendimento prévio do assunto, em nivel casual
+- Básico: IA vai partir do pressuposto que o usuário tem intendimento prévio do assunto, em nivel casual
 
 - Expert: IA vai usar termos quaisquer técnicos que achar necessário para explicações
 
@@ -27,7 +27,7 @@ Projeto de um simples chatbot usando API da OpenAI implementada com LangChain e 
   
   **Ferramentas:**
   
-- Matematica: Capaz de solucionar operações algébricas e fazer calculos caso for necessário
+- Matemática: Capaz de solucionar operações algébricas e fazer cálculos caso for necessário
     
 - Wikipedia: Capaz de pesquisar sobre pessoas, coisas, lugares na Wikipedia
     
@@ -36,6 +36,6 @@ Projeto de um simples chatbot usando API da OpenAI implementada com LangChain e 
 - Random: Capaz de simular aleatoridade
 
 ## AI Roles:
-  Similarmente aos nomes, caso seja preenchido, a IA agirá como expecificado neste campo. Usando quaisquer maneirimos e atuando como desejado.
-  Como agentes impedem a IA de agir de qualquer maneira expecifica, enquanto a opção de Agentes estiver ligado, essas expecificações serão aplicadas após o resultado final dos Agentes.
+  Similarmente aos nomes, caso seja preenchido, a IA agirá como especificado neste campo. Usando quaisquer maneirimos e atuando como desejado.
+  Como agentes impedem a IA de agir de qualquer maneira específica, enquanto a opção de Agentes estiver ligado, essas especificações serão aplicadas após o resultado final dos Agentes.
   Portanto, gastará mais tempo e será menos efetiva que a geração do texto sem agentes.
