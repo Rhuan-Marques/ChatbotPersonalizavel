@@ -1,14 +1,26 @@
+"""
+This file manages the Langchain Agent(s) and it(s) tool(s)
+"""
 from langchain.agents import initialize_agent, AgentType
 from langchain.utilities import WikipediaAPIWrapper
 from langchain.chains import LLMMathChain
 from langchain.agents import Tool
-from langchain.tools import DuckDuckGoSearchRun
+from langchain.tools import StructuredTool, DuckDuckGoSearchRun
 from langchain.llms import OpenAI
 import random
 
 def calculator(input=""):
-    llm = OpenAI(temperature=0)
-    mathChain = LLMMathChain.from_llm(llm, verbose=True)
+    """
+    Function for tool mathTool\n
+    Creates an MathChainLLM with the key from app.py
+    """
+    from app import getKey
+    key = getKey()
+    try:
+        llm = OpenAI(temperature=0, openai_api_key=key)
+        mathChain = LLMMathChain.from_llm(llm, verbose=True)
+    except:
+        return "Error occured, couldn't connect to API, tell this to the user"
     return mathChain.run(input)
 
 mathTool = Tool(
@@ -17,33 +29,56 @@ mathTool = Tool(
     description="Useful for doing complex math problems, be specific with your input"
 )
 
-search = DuckDuckGoSearchRun()
+def search(input=""):
+    """
+        Function for tool searchTool\n
+        Uses DuckDuckGo API to search the internet
+    """
+    return DuckDuckGoSearchRun()
 
 searchTool = Tool(
     name="Search",
-    func=search.run,
+    func=search,
     description="Useful when you need to search the internet for information you can't get alone, be specific with your input"
 )
 
-wikipedia = WikipediaAPIWrapper()
+def wikipedia(input=""):
+    """
+        Function for tool wikiTool\n
+        Uses Wikipedia API
+    """
+    return WikipediaAPIWrapper()
 
 wikiTool = Tool(
     name="Wikipedia",
-    func=wikipedia.run,
+    func=wikipedia,
     description="Useful to look up specifc information about a person, country or topic on wikipedia"
 )
 
-def generateRandom(min=0, max=100):
-    return random.randint(min, max)
+def generateRandom(min:int, max:int):
+    """
+        Function for tool randomTool\n
+        Generates a random number between the two given ints
+    """
+    result = random.randint(min, max)
 
-randomTool = Tool(
+    return result
+
+randomTool = StructuredTool.from_function( #Structured because needs multiple inputs
     name="Random",
     func=generateRandom,
-    description="Useful when you need to generate a random number in a range. input should be the minimum and maximum number of the specific range"
+    description="Generates a random number between two given ints"
 )
 
-tools = [searchTool, randomTool, wikiTool, searchTool, mathTool]
-def conversationAgent(llm, input):
+tools = [searchTool, randomTool, wikiTool, mathTool]
+def runAgent(llm, input):
+
+    """
+        Creates and runs an Agent
+        :param llm: The Large Language Model that will power the agent
+        :param input: Initial input of what to do
+        :return: Output text of what the agents response
+    """
     myAgent = initialize_agent(
         agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
         tools=tools,
@@ -51,9 +86,5 @@ def conversationAgent(llm, input):
         verbose=True,
         max_iterations=3
     )
-
-    #executor = AgentExecutor(agent=myAgent, tools=tools)
-    #executor.invoke({"input": input})
     result = myAgent(input)
-
     return result["output"]
