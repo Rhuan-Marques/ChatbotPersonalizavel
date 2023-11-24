@@ -12,9 +12,9 @@ import random
 def calculator(input=""):
     """
     Function for tool mathTool\n
-    Creates an MathChainLLM with the key from app.py
+    Creates an MathChainLLM with the key from stApp.py
     """
-    from app import getKey
+    from stApp import getKey
     key = getKey()
     try:
         llm = OpenAI(temperature=0, openai_api_key=key)

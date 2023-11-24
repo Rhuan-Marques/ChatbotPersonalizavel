@@ -6,7 +6,7 @@ It uses the data to manage the AI prompts accordingly to any modification made i
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate
 
-class IA:
+class AI:
     """Manages an instance of an OpenAPI Chatbot
     :var chatModel: The Chat iself, must be initialized by passing API key through constructor
     :var name: How the Chatbot will address itself

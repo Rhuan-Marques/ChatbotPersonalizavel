@@ -4,8 +4,8 @@ It draws elements on screen and keeps the human input
 """
 import os
 import streamlit as st
-from lang import IA
-from lang import KeyNotFound, APIConectionError
+from baseAI import AI
+from baseAI import KeyNotFound, APIConectionError
 
 # Seta nome da página
 st.set_page_config(page_title="Chatbot")
@@ -28,7 +28,7 @@ def getKnowLvl(know):
     else:
         return 0
 
-def getTrueKey(key):
+def checkForEnvVar(key):
     """
     If the key provided is empty, checks for a key in the enviorement variables
     :param key: An API Key, possibly empty
@@ -49,7 +49,7 @@ with st.sidebar:
     # After the first message, it connects to the API for the rest of the chat and this camp is disabled
     key = st.text_input("Chave API", "", type="password", disabled=st.session_state.ai != None)
     st.caption("Caso nenhuma chave seja provida, iremos buscar nas variaveis de ambiente")
-    key = getTrueKey(key)
+    key = checkForEnvVar(key)
 
     # Gets true KnowledgeLvl (as integer) from the selectable text box
     knowLvl = getKnowLvl(st.selectbox("Seu nivel de entendimento sobre o assunto em questão:",
@@ -99,7 +99,7 @@ if input := st.chat_input():
     # Connection errors or Key errors will be passed to user as messages on the chat
     if st.session_state.ai == None:
         try:
-            st.session_state.ai = IA(name=name, role=role, user_name=username, knowledge=knowLvl, key=key, agentToggle=agentToggle)
+            st.session_state.ai = AI(name=name, role=role, user_name=username, knowledge=knowLvl, key=key, agentToggle=agentToggle)
         except KeyNotFound:
             response = "Chave nao reconhecida na barra lateral nem nas variáveis de ambiente"
         except APIConectionError:
@@ -118,13 +118,6 @@ def getKey():
         """
         Gets key from textbox
         :param key: An API Key, possibly empty
-        :return: The key provided or found, None if it doesn't find any keys
+        :return: The key found, None if it doesn't find any keys
         """
-        if not key:
-            try:
-                API_KEY = os.environ['OPENAI_API_KEY']
-            except:
-                API_KEY = None
-        else:
-            API_KEY = key
-        return API_KEY
+        return key
