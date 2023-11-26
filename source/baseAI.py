@@ -5,7 +5,7 @@ It uses the data to manage the AI prompts accordingly to any modification made i
 """
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate
-
+from agents.generalAgent import GeneralAgent
 
 class AI:
     """Manages an instance of an OpenAPI Chatbot
@@ -20,9 +20,9 @@ class AI:
     :var HISTORY_MAX_SIZE: Max size the history should get
     :var agentToggle: Will agents be used
     """
-    def __init__(self, key, name="SuppaChat", role="", user_name="", knowledge=0, agent_toggle=False):
+    def __init__(self, keys: dict, name="SuppaChat", role="", user_name="", knowledge=0, agent_toggle=False):
         """
-        :param key: API Key
+        :param keys: Dictionary of API Keys
         :param name: Name of the Chatbot
         :param role: Role it will be playing as
         :param user_name: How to address user
@@ -31,13 +31,13 @@ class AI:
         :raise KeyNotFound: Given key is blank
         :raise APIConnectionError: Cant connect to API
         """
-        if not key:
+        if not keys["OPENAI_API_KEY"]:
             raise KeyNotFound
         try:
             print("Testando conexao com a API")
-            self.chatModel = ChatOpenAI(openai_api_key=key)
-            self.chatModel.invoke("")  # Checks if the key is valid
-            print("Conexao estabelecida")
+            self.chatModel = ChatOpenAI(openai_api_key=keys["OPENAI_API_KEY"])
+            # self.chatModel.invoke("")  # Checks if the key is valid
+            # print("Conexao estabelecida")
         except Exception as e:
             print(f"Exception {e}")
             raise APIConectionError
@@ -46,6 +46,7 @@ class AI:
         self.conv_history = None
         self.history_length = 0
         self.HISTORY_MAX_SIZE = 500
+        self.keys = keys
 
     def update(self, name="SuppaChat", role="", user_name="", knowledge=0, agent_toggle=False):
         """
@@ -147,12 +148,12 @@ class AI:
         chat_prompt = ChatPromptTemplate.from_messages(full_template)
         messages = chat_prompt.format_messages(role=self.role, name=self.name, user_name=self.user_name)
 
-        # Defines if it will use normal responses or call agent(s)
+        # Defines if it will use normal responses or the GeneralAgent(s)
         if not self.agentToggle:
             response = self.chatModel.invoke(messages).content
         else:
-            from agent import BasicAgent
-            response = BasicAgent(self.chatModel).run(messages)
+            agent = GeneralAgent(keys=self.keys)
+            response = agent.run(messages)
             """
             Agents won't follow the roles for their thought
             To get a similar effect, we re-write their final response to match

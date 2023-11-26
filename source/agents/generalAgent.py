@@ -1,7 +1,8 @@
 """
-This file manages the Langchain Agent(s) and it(s) tool(s)
+This file manages GeneralAgent and it tools
 """
-from langchain.agents import initialize_agent, AgentType
+
+from agents.agentABC import AbstractAgent
 from langchain.utilities import WikipediaAPIWrapper
 from langchain.chains import LLMMathChain
 from langchain.agents import Tool
@@ -9,36 +10,23 @@ from langchain.tools import StructuredTool, DuckDuckGoSearchRun
 import random
 
 
-class BasicAgent:
+class GeneralAgent(AbstractAgent):
     """
-            Agent class used to manage an agent and its tools\n
-            Useful for centralization and so that it's methods can have information like its llm
+            Agent meant to be the head that chooses broadly what to do\n
+            Calls other agents for more specific purposes\n
+
+            Tools:
+
+            - Wikipedia: Look info on Wikipedia
+            - Search: Use DuckDuckGo to search info
+            - Math: Can solve complex math problems
+            - Random: Emulates RNG
     """
-
-    def __init__(self, llm):
-        """
-            Initialized agent
-            :param llm: Large Language Model this agent and its tools will use
-        """
-        self.llm = llm
-        self.agent = initialize_agent(
-            agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-            tools=self.getTools(),
-            llm=self.llm,
-            verbose=True,
-            max_iterations=3
-        )
-
-
-    def run(self, prompt):
-        """Runs the agent based on input given
-        :param prompt: Input prompt for agent to observe
-        :return: Output text of agents response"""
-        result = self.agent(prompt)
-        return result["output"]
-
     def getTools(self):
-        """Returns the list of tools of the specific agent"""
+        """
+        Returns the list of tools of the specific agent\n
+        Overrides abstract method getTools() from AbstractAgent
+        """
         llm = self.llm  # Sets up accessible llm for tools that need it
         tools = []      # Creates empty list
 
@@ -110,5 +98,19 @@ class BasicAgent:
                 description="Generates a random number between two given ints"
             )
         )
+
+        def callFinanceAgent(input=""):
+            from agents.financeAgent import FinanceAgent
+            agent = FinanceAgent( keys=self.keys)
+            return agent.run(input)
+
+        if self.keys["ALPHAVANTAGE_API_KEY"]:
+            tools.append(
+                Tool(
+                    name="FinanceAgent",
+                    func=callFinanceAgent,
+                    description="Useful to get info about the current financial market. Generate a detailed text of what you need to know as your input"
+                )
+            )
 
         return tools
