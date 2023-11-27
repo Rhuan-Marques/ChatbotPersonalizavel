@@ -3,12 +3,9 @@ This file is for the streamlit front-end of the project.
 It draws elements on screen and keeps the human input
 """
 
-
-
 import os
 import streamlit as st
-from baseAI import AI
-from baseAI import KeyNotFound, APIConectionError
+
 
 # Seta nome da página
 st.set_page_config(page_title="Chatbot")
@@ -22,9 +19,12 @@ if "messages" not in st.session_state:
 # Setting up keys dictionary to pass to the AI
 if "keys" not in st.session_state:
     st.session_state["keys"] = {}
-# Stores the current values of fill-able camps so that you can save/load states
+# Stores the current values of fill-able camps so that you can save/load states easily
 if "camps" not in st.session_state:
     st.session_state["camps"] = {}
+# # Stores the loading messages like "Connecting to API"
+# if "loading" not in st.session_state:
+#     st.session_state["loading"] = ""
 
 def getKnowLvl(know):
     """
@@ -38,6 +38,13 @@ def getKnowLvl(know):
         return 2
     else:
         return 0
+
+def getHistoryStr():
+    """Returns the message history as human-readable String instead of messy dictionary"""
+    history = ""
+    for msg in st.session_state["messages"]:
+        history+= msg["role"] + ": " + msg["text"] + "\n\n"
+    return history
 
 def checkForEnvVar(key: str, envar_pos: str):
     """
@@ -56,7 +63,7 @@ def checkForEnvVar(key: str, envar_pos: str):
         else:
             return API_KEY
 
-
+# ----------------------------------------- SIDE BAR ---------------------------------------------------------------
 with st.sidebar:
     def getValue(textCamp):
         """
@@ -102,13 +109,13 @@ with st.sidebar:
         # If activated, the AI should act as whatever is written in this area
         st.session_state["camps"]["roleToggle"] = st.toggle(label="IA Roles",
                                                             value=getValue("roleToggle"))
-        st.session_state["camps"]["role"]=""
         if getValue("roleToggle"):
             st.session_state["camps"]["role"] = st.text_area(label="Papel da IA",
                                                              disabled=not st.session_state["camps"]["roleToggle"],
                                                              value=getValue("role"))
             st.caption("A IA atuará como descrito aqui. Quando ativado juntamente com Agentes, é menos consistente e aumenta o tempo de resposta")
-
+        else:
+            st.session_state["camps"]["role"] = ""
         # Names for how the AI should address itself and its user
         st.session_state["camps"]["name"] = st.text_input(label="Nome da IA",
                                                           value=getValue("name"))
@@ -150,6 +157,8 @@ with st.sidebar:
         if uploaded_file is not None:
             json_file = json.load(uploaded_file)
             st.session_state["camps"] = dict(json_file)
+            # Resets AI to deal with API Key changes
+            st.session_state["ai"] = None
             # Reruns to apply changes
             st.session_state["camps"]["LoadStateMode"] = False
             st.rerun()
@@ -157,16 +166,18 @@ with st.sidebar:
     col1, col2 = st.columns(2)
     # Save Conversation button to save messageHistory
     with col1:
-        conversation_data = json.dumps(st.session_state["messages"])
+        conversation_data = getHistoryStr()
         st.download_button("Salvar Conversa", data= conversation_data, file_name="messageHistory.txt")
 
     # Reset button logic
     with col2:
         if st.button("Reset", type="primary"):
-            st.session_state.clear()
+            del st.session_state["messages"]
+            del st.session_state["ai"]
             st.rerun()
 
 
+# ----------------------------------------- CHAT VISUALS ---------------------------------------------------------------
 st.title(':computer: Chatbot AI :blue[Personalizavel] :computer:')
 
 # Writes the whole conversation back from memory
@@ -178,7 +189,23 @@ for msg in st.session_state["messages"]:
         coloredMsg = msg["text"]
     st.chat_message(msg["role"]).write(coloredMsg)
 
+
+#
+# if st.session_state["loading"]:
+#     st.write(st.session_state["loading"] + "...")
+#     st.session_state["loading"] = ""
+#
+# def loading(loading_msg: str):
+#     """
+#     Other files can call this function to add a "loading" message to the screen
+#     :param loading_msg: The message to be added
+#     """
+#     st.session_state["loading"]= loading_msg
+#     st.rerun()
+
+# ------------------------------------------ CHAT INPUT -------------------------------------------------------------
 if input := st.chat_input():
+    from baseAI import AI
     # Add user message to the visual screen
     st.session_state.messages.append({"role": "user", "text": input})
     st.chat_message("user").write(input)
@@ -186,6 +213,7 @@ if input := st.chat_input():
     # If there isn't an connected AI, tries to connect to it
     # Connection errors or Key errors will be passed to user as messages on the chat
     if st.session_state.ai == None:
+        from baseAI import KeyNotFound, APIConectionError
         try:
             st.session_state.ai = AI(keys=st.session_state["keys"],
                                      name=getValue("name"),

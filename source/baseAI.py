@@ -3,10 +3,12 @@ This file is for the main AI components
 It keeps any important variables for the AI as well as the chatbot itself.
 It uses the data to manage the AI prompts accordingly to any modification made in front-end.
 """
+import time
+
 from langchain.chat_models import ChatOpenAI
 from langchain.prompts.chat import ChatPromptTemplate
 from agents.generalAgent import GeneralAgent
-
+from time import time
 class AI:
     """Manages an instance of an OpenAPI Chatbot
     :var chatModel: The Chat itself, must be initialized by passing API key through constructor
@@ -20,6 +22,10 @@ class AI:
     :var HISTORY_MAX_SIZE: Max size the history should get
     :var agentToggle: Will agents be used
     """
+
+    HISTORY_MAX_SIZE = 500
+
+
     def __init__(self, keys: dict, name="SuppaChat", role="", user_name="", knowledge=0, agent_toggle=False):
         """
         :param keys: Dictionary of API Keys
@@ -31,13 +37,14 @@ class AI:
         :raise KeyNotFound: Given key is blank
         :raise APIConnectionError: Cant connect to API
         """
+
         if not keys["OPENAI_API_KEY"]:
             raise KeyNotFound
         try:
             print("Testando conexao com a API")
             self.chatModel = ChatOpenAI(openai_api_key=keys["OPENAI_API_KEY"])
-            # self.chatModel.invoke("")  # Checks if the key is valid
-            # print("Conexao estabelecida")
+            self.chatModel.invoke("")  # Checks if the key is valid
+            print("Conexao estabelecida")
         except Exception as e:
             print(f"Exception {e}")
             raise APIConectionError
@@ -45,7 +52,6 @@ class AI:
         self.update(name, role, user_name, knowledge, agent_toggle)
         self.conv_history = None
         self.history_length = 0
-        self.HISTORY_MAX_SIZE = 500
         self.keys = keys
 
     def update(self, name="SuppaChat", role="", user_name="", knowledge=0, agent_toggle=False):
@@ -75,31 +81,27 @@ class AI:
         template = ""
         # Checks if it has a role, if not, defaults to basic AI Chatbot
         if self.role:
-            template = template + "You are a {role}"
+            template += "You are a {role}. "
         else:
-            template = template + "You are an AI chatbot"
+            template += "You are an AI chatbot"
 
         # Adds its name in (if it exists)
         if self.name:
-            template = template + " named {name}"
+            template += " named {name}. "
         # Checks if it has a defined user_name, if not, specifies that it shouldn't know
         if self.user_name:
-            template = template + "\nYou are talking to someone named {user_name}"
+            template += "You are talking to someone named {user_name}. "
         else:
-            template = template + "\nYou don't know the name of whoever you are talking to"
+            template += "You don't know the name of whoever you are talking to. "
 
         # Specifies how the AI should treat the users knowledge of the subject
         # Will use necessary technical terms if the user is an expert but not if it is a novice
         if self.user_knowledge == 0:
-            template = template + """\nYou are talking to a user without any technical knowledge.
-                Be sure to use simple terms anyone can understand"""
+            template = template + "You are talking to a user without any technical knowledge. Be sure to use simple terms anyone can understand. "
         elif self.user_knowledge == 1:
-            template = template + """\nYou are talking to a user with basic technical knowledge.
-                Talk as you would with someone who isn't from the field in question
-                Don't use too complicated or uncommon terms"""
+            template = template + "You are talking to a user with basic technical knowledge. Talk as you would with someone who isn't from the field in question. Don't use too complicated or uncommon terms"
         elif self.user_knowledge == 2:
-            template = template + """\nYou are talking to an expert user.
-            Use any technical terms necessary to explain what you need in a professional manner"""
+            template = template + "You are talking to an expert user. Use any technical terms necessary to explain what you need in a professional manner"
         return template
 
     def addInteraction(self, sender, text: str):
@@ -152,15 +154,21 @@ class AI:
         if not self.agentToggle:
             response = self.chatModel.invoke(messages).content
         else:
-            agent = GeneralAgent(keys=self.keys)
+            agent = GeneralAgent(keys=self.keys, llm=self.chatModel)
             response = agent.run(messages)
+
             """
             Agents won't follow the roles for their thought
             To get a similar effect, we re-write their final response to match
             the current role
             """
-
             if self.role:
+                import time
+                current_time = time.time()
+                if current_time - agent.requests[0] < 65:
+                    time.sleep(65 - (current_time - agent.requests[0]))
+
+                print(f"Pre-Transcribed: {response}")
                 response = self.transcribe(response)
 
         # Adds response to the memory and returns it

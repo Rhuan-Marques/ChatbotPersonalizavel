@@ -30,15 +30,38 @@ class GeneralAgent(AbstractAgent):
             :param llm: Large Language Model the Agent will use it function
         """
         self.MAX_RETRIES = 5
-        self.agent = initialize_agent(
-            agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-            tools=self.getTools(),
-            llm=self.llm,
-            verbose=True,
-            max_iterations=3
-        )
+        from agents.generalAgent import GeneralAgent
+        self.agent = GeneralAgent(llm=llm, keys=keys)
 
 
+    def run(self, prompt):
+        """Runs the agent based on the input text given
+        :param prompt: Input prompt for agent to observe
+        :return: Output text of agents response"""
+
+        import time
+        import random
+        from openai._exceptions import RateLimitError
+        # Agent retries to call the API multiple times waiting exponentially longer for the Rate_Limit
+        for i in range(self.MAX_RETRIES):
+            #print("Creating agent\n")
+            try:
+                time.sleep(5)
+                #print("Times Up!\n")
+                result = self.agent(prompt)
+                #print("Agent Done!\n")
+            except RateLimitError:
+                wait_time = (5 ** (i+1)) + random.random()
+                #print("Rate Limit hit!")
+                #print(f"Will Retry {i+1}th time in {wait_time}")
+                time.sleep(wait_time)
+            except Exception as e:
+                error_result = f"Unexpected error with agent: {e}. Communicate to the user"
+                return error_result
+            else:
+                return result["output"]
+        error_result = "Still hitting OpenAi APIs Rate Limit after max retries, inform the user"
+        return error_result
 
 
 
@@ -125,15 +148,14 @@ class GeneralAgent(AbstractAgent):
         if self.keys["ALPHAVANTAGE_API_KEY"]:
             def financeAgentCall(input=""):
                 from agents.financeAgent import FinanceAgent
-                agent = FinanceAgent(llm=self.llm, keys=self.keys)
-                result = agent.run(input)
-                return result
+                self.agent = FinanceAgent(llm=self.llm, keys=self.keys)
+                return input
 
             tools.append(
                 Tool(
                     name="FinanceAgent",
                     func=financeAgentCall,
-                    description="Calls agent for information about current finance market, blockchain, real state, etc. Describe what you need for your input, talk like a human, don't be too brief"
+                    description="Calls agent for information about current finance market, blockchain, real state, etc. Describe exactly what you need for your input"
                 )
             )
 
