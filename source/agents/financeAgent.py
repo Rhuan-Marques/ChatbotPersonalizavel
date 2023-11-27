@@ -7,14 +7,13 @@ from langchain.agents import Tool
 
 class FinanceAgent(AbstractAgent):
     """
-            Agent meant to ???
+            Agent meant to search for finance-related questions
 
             Tools:
 
-            - ???:
-            - ???:
-            - ???:
-            - ???:
+            - Finance News: Search for news about the current financial market
+                - Topic: Search about specific topics
+                - Tickers: Searches about specific tickers
     """
 
     def getTools(self):
