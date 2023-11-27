@@ -2,11 +2,10 @@
 This file manages GeneralAgent and it tools
 """
 from agents.agentABC import AbstractAgent
-from langchain.utilities import WikipediaAPIWrapper
 from langchain.chains import LLMMathChain
+from langchain.utilities import WikipediaAPIWrapper
 from langchain.agents import Tool
-from langchain.tools import StructuredTool, DuckDuckGoSearchRun
-from langchain.agents import initialize_agent, AgentType
+from langchain.tools import StructuredTool, DuckDuckGoSearchRun, WikipediaQueryRun
 import random
 
 
@@ -22,26 +21,6 @@ class GeneralAgent(AbstractAgent):
             - Math: Can solve complex math problems
             - Random: Emulates RNG
     """
-    def __init__(self, keys, llm):
-        self.keys=keys
-        self.llm = llm
-        """
-            Initialized agent
-            :param llm: Large Language Model the Agent will use it function
-        """
-        self.MAX_RETRIES = 5
-        self.agent = initialize_agent(
-            agent=AgentType.STRUCTURED_CHAT_ZERO_SHOT_REACT_DESCRIPTION,
-            tools=self.getTools(),
-            llm=self.llm,
-            verbose=True,
-            max_iterations=3
-        )
-
-
-
-
-
 
 
     def getTools(self):
@@ -52,18 +31,13 @@ class GeneralAgent(AbstractAgent):
         llm = self.llm  # Sets up accessible llm for tools that need it
         tools = []      # Creates empty list
 
-        def search(input=""):
-            """
-                Function for tool searchTool\n
-                Uses DuckDuckGo API to search the internet
-            """
-            return DuckDuckGoSearchRun()
+        search = DuckDuckGoSearchRun()
 
         tools.append(
             Tool(
                 name="Search",
-                func=search,
-                description= "Useful when you need to search the internet for information you can't get alone, be specific with your input"
+                func=search.run,
+                description= "Useful when you need to search the internet for information, be specific with your input"
             )
         )
 
@@ -90,18 +64,13 @@ class GeneralAgent(AbstractAgent):
             )
         )
 
-        def wikipedia(input=""):
-            """
-                Function for tool wikiTool\n
-                Uses Wikipedia API
-            """
-            return WikipediaAPIWrapper()
+        wikipedia = WikipediaQueryRun(api_wrapper=WikipediaAPIWrapper())
 
         tools.append(
             Tool(
                 name="Wikipedia",
-                func=wikipedia,
-                description="Useful to look up specifc information about a person, country or topic on wikipedia"
+                func=wikipedia.run,
+                description="Useful to look up information about a person, country or event on wikipedia, but only use it if you already know the specific name of whoever/whatever you are looking for. Be precise with your input, only the name, not the characteristics of the request. For exemple, if you want to know \"Age of Leonardo Di Caprio\" Input only: \"Leonardo Di Caprio\", if you want to know \"How many people died in World War II\" Input only: \"World War 2\""
             )
         )
 
