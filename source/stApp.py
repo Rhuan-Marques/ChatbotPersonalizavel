@@ -133,7 +133,7 @@ with st.sidebar:
             value=getValue("AlphaVantage"),
             disabled=connected)
         st.session_state["keys"]["ALPHAVANTAGE_API_KEY"] = getValue("AlphaVantage")
-        st.caption("Usefull integration for finance news/predictions. Get for free at: https://www.alphavantage.co/support/#api-key")
+        st.caption("Util para acesso a notícias da área de finanças. Consiga de graça em: https://www.alphavantage.co/support/#api-key")
 
     # creates colums for different buttons
     col1, col2 = st.columns(2)
