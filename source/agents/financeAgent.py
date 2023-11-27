@@ -42,7 +42,7 @@ class FinanceAgent(AbstractAgent):
                 i+=1
             if len(result) > 4000:
                 result = result[0:4000]
-            result += "\n\nNow, use these articles info to reach a conclusion and report it to the user"
+            result += "\n\nNow, use these articles info to reach a conclusion and report it to the user. If you can't find any important info in these articles, include this in your response: 'Sadly, i couldn't find any relevant information on recent articles online, please notify the user immediatly about this'"
             return result
 
 
@@ -95,7 +95,7 @@ class FinanceAgent(AbstractAgent):
             Tool(
                 name="FinanceTickerNews",
                 func=newsTicker,
-                description= ('Use it when you need recent financial news about one or more specific stock ticker, be precise with your input, only use the ticker symbols, for exemple: instead of "Dolar" use "FOREX:USD", instead of "Bitcoin" use "CRYPTO:BTC", etc. For multiple tickers, separate them by a single comma')
+                description= ('Use it when you need recent financial news about one or more specific stock ticker, be precise with your input, it should be a single string and only use the ticker symbols, for exemple: instead of "Dolar" use "FOREX:USD", instead of "Bitcoin" use "CRYPTO:BTC", etc. For multiple tickers, separate them by a single comma')
             )
         )
 
