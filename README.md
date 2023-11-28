@@ -40,11 +40,13 @@ Projeto de um chatbot usando API da OpenAI implementada com LangChain e Streamli
 - Matemática: Capaz de solucionar operações algébricas e fazer cálculos caso for necessário
     
 - Wikipedia: Capaz de pesquisar sobre pessoas, coisas, lugares na Wikipedia
-    
+    - Para uso local, necessita do uso de "pip install wikipedia"
+      
 - Pesquisa: Capaz de pesquisar na internet sobre quaisquer tópicos que julgar necessário (usando DuckDuckGO)
+    - Para uso local, necessita do uso de "pip install duckduckgo-search"
 
 - Random: Capaz de simular aleatoridade
-    - Por exemplo: "Aleatorize um numero entre 1 e 25", "Simule uma chançe de 50% de uma moeda cair cara ou coroa e me diga o resultado", etc
+    - Por exemplo: "Aleatorize um numero entre 1 e 25" ou "Simule uma chançe de 50% de uma moeda cair cara ou coroa e me diga o resultado", etc
 
 **Ferramentas (Agente de Finanças):**
 
