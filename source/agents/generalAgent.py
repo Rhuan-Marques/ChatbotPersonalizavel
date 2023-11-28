@@ -48,19 +48,19 @@ class GeneralAgent(AbstractAgent):
             """
             try:
                 mathChain = LLMMathChain.from_llm(llm, verbose=True)
-                mathChain.run(input)
+                result = mathChain.run(input)
             except ValueError:
                 return "Error occured, not all the values needed are known. Maybe search before trying Math?"
-            except:
-                return "Unexpected error occured, tell this to the user"
-
-            return
+            except Exception as e:
+                return f"Unexpected error {e} occured, tell this to the user"
+            else:
+                return result
 
         tools.append(
             Tool(
                 name="Math",
                 func=calculator,
-                description="Useful for doing complex math problems. Only use it when you already know all the numbers needed in the equation"
+                description="Useful for doing complex math problems. Only use it when you already know all the numbers needed in the equation. Use these symbols for your input: + for sum, - for substraction, * for multiplication, ** for power"
             )
         )
 
