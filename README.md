@@ -1,6 +1,12 @@
 # ChatbotPersonalizavel
 Projeto de um chatbot usando API da OpenAI implementada com LangChain e Streamlit.
 ## Como utilizar:
+- **Web-App:**
+  
+  Disponível em https://chatbotpersonalizavel.streamlit.app
+
+- **Instalar localmente:**
+  
   Tenha Python, Langchain e Streamlit instalados localmente.
   
   Abrir terminal no caminho que estejam os arquivos de codigo do projeto (Por padrão, ./source)
