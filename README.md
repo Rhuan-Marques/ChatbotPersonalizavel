@@ -15,6 +15,8 @@ Projeto de um chatbot usando API da OpenAI implementada com LangChain e Streamli
   
   Precisa de Chave de API da OpenAI, colocada manualmente na barra lateral do programa, ou via variavel de ambiente (OPENAI_API_KEY).
 
+  Para utilizar ferramentas de pesquisa e Wikipédia pelos agentes, é preciso ter duckduckgo-search e wikipedia instalados localmente também
+
   Após isso, só conversar!
   
   *Nota: O chatbot é capaz de se comunicar em qualquer língua, porém, algumas funções do Chatbot funcionarão melhor com conversas em inglês, sendo esta a linguagem usada internamente e a linguagem com mais conteudo disponível on-line.
@@ -40,10 +42,8 @@ Projeto de um chatbot usando API da OpenAI implementada com LangChain e Streamli
 - Matemática: Capaz de solucionar operações algébricas e fazer cálculos caso for necessário
     
 - Wikipedia: Capaz de pesquisar sobre pessoas, coisas, lugares na Wikipedia
-    - Para uso local, necessita do uso de "pip install wikipedia"
       
 - Pesquisa: Capaz de pesquisar na internet sobre quaisquer tópicos que julgar necessário (usando DuckDuckGO)
-    - Para uso local, necessita do uso de "pip install duckduckgo-search"
 
 - Random: Capaz de simular aleatoridade
     - Por exemplo: "Aleatorize um numero entre 1 e 25" ou "Simule uma chançe de 50% de uma moeda cair cara ou coroa e me diga o resultado", etc
