@@ -3,3 +3,4 @@ openai
 langchain
 duckduckgo-search
 wikipedia
+numexpr
